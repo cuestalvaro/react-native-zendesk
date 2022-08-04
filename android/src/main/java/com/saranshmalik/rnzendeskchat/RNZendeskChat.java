@@ -1,4 +1,3 @@
-
 package com.saranshmalik.rnzendeskchat;
 
 import android.app.Activity;
@@ -46,24 +45,24 @@ import zendesk.support.guide.ViewArticleActivity;
 import zendesk.support.requestlist.RequestListActivity;
 import zendesk.answerbot.AnswerBot;
 import zendesk.answerbot.AnswerBotEngine;
-import zendesk.support.SupportEngine;
+// import zendesk.support.SupportEngine;
 
 public class RNZendeskChat extends ReactContextBaseJavaModule {
 
-  private ReactContext appContext;
-  private static final String TAG = "ZendeskChat";
+    private ReactContext appContext;
+    private static final String TAG = "ZendeskChat";
 
-  public RNZendeskChat(ReactApplicationContext reactContext) {
+    public RNZendeskChat(ReactApplicationContext reactContext) {
         super(reactContext);
         appContext = reactContext;
-  }
+    }
 
-  @Override
-  public String getName() {
-    return "RNZendeskChat";
-  }
+    @Override
+    public String getName() {
+        return "RNZendeskChat";
+    }
 
-  @ReactMethod
+    @ReactMethod
     public void setVisitorInfo(ReadableMap options) {
 
         Providers providers = Chat.INSTANCE.providers();
@@ -120,15 +119,15 @@ public class RNZendeskChat extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setUserIdentity(ReadableMap options) {
         if (options.hasKey("token")) {
-          Identity identity = new JwtIdentity(options.getString("token"));
-          Zendesk.INSTANCE.setIdentity(identity);
+            Identity identity = new JwtIdentity(options.getString("token"));
+            Zendesk.INSTANCE.setIdentity(identity);
         } else {
-          String name = options.getString("name");
-          String email = options.getString("email");
-          Identity identity = new AnonymousIdentity.Builder()
-                  .withNameIdentifier(name).withEmailIdentifier(email).build();
-          Zendesk.INSTANCE.setIdentity(identity);
-        }   
+            String name = options.getString("name");
+            String email = options.getString("email");
+            Identity identity = new AnonymousIdentity.Builder()
+                .withNameIdentifier(name).withEmailIdentifier(email).build();
+            Zendesk.INSTANCE.setIdentity(identity);
+        }
     }
 
     @ReactMethod
@@ -137,18 +136,21 @@ public class RNZendeskChat extends ReactContextBaseJavaModule {
         Activity activity = getCurrentActivity();
         if (options.hasKey("withChat")) {
             HelpCenterActivity.builder()
-             .withEngines(ChatEngine.engine())
-             .show(activity);
+                .withEngines(ChatEngine.engine())
+                .show(activity);
         } else if (options.hasKey("disableTicketCreation")) {
             HelpCenterActivity.builder()
-              .withContactUsButtonVisible(false)
-              .withShowConversationsMenuButton(false)
-              .show(activity, ViewArticleActivity.builder()
-                                                 .withContactUsButtonVisible(false)
-                                                 .config());
+                .withContactUsButtonVisible(false)
+                .withShowConversationsMenuButton(false)
+                .show(
+                    activity,
+                    ViewArticleActivity.builder()
+                        .withContactUsButtonVisible(false)
+                        .config()
+                );
         } else {
             HelpCenterActivity.builder()
-             .show(activity);
+                .show(activity);
         }
     }
 
@@ -158,7 +160,7 @@ public class RNZendeskChat extends ReactContextBaseJavaModule {
         setUserIdentity(options);
         setVisitorInfo(options);
         setUserIdentity(options);
-        String botName = options.getString("botName");
+        String botName = options.hasKey("botName") ? options.getString("botName") : "Chat Bot";
         ChatConfiguration chatConfiguration = ChatConfiguration.builder()
                 .withAgentAvailabilityEnabled(true)
                 .withOfflineFormEnabled(true)
@@ -166,17 +168,15 @@ public class RNZendeskChat extends ReactContextBaseJavaModule {
 
         Activity activity = getCurrentActivity();
         if (options.hasKey("chatOnly")) {
-           MessagingActivity.builder()
-                    .withBotLabelString(botName)
-                    .withEngines(ChatEngine.engine(), SupportEngine.engine())
-                    .show(activity, chatConfiguration);
+            MessagingActivity.builder()
+                .withEngines(ChatEngine.engine())
+                .show(activity, chatConfiguration);
         } else {
             MessagingActivity.builder()
-                    .withBotLabelString(botName)
-                    .withEngines(AnswerBotEngine.engine(), ChatEngine.engine(), SupportEngine.engine())
-                    .show(activity, chatConfiguration);
+                .withEngines(ChatEngine.engine())
+                .withBotLabelString(botName)
+                .show(activity);
         }
-      
     }
 
     @ReactMethod
