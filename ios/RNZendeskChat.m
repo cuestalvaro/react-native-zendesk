@@ -166,7 +166,18 @@ RCT_EXPORT_METHOD(setNotificationToken:(NSData *)deviceToken) {
                                                              configs:@[messagingConfiguration, chatConfiguration]
                                                              error:&error];
 
-  [self.navigationController pushViewController:viewController animated:YES];
+    viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"Close"
+                                                                                style: UIBarButtonItemStylePlain
+                                                                                target: self
+                                                                                action: @selector(chatClosedClicked)];
+
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+
+    UINavigationController *navControl = [[UINavigationController alloc] initWithRootViewController: viewController];
+    [topController presentViewController:navControl animated:YES completion:nil];
 }
 
 - (void) chatClosedClicked {
