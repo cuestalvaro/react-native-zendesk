@@ -26,7 +26,7 @@ RCT_EXPORT_METHOD(setVisitorInfo:(NSDictionary *)options) {
                                                 email:options[@"email"]
                                                 phoneNumber:options[@"phone"]];
   ZDKChat.instance.configuration = config;
-  
+
   NSLog(@"Setting visitor info: department: %@ tags: %@, email: %@, name: %@, phone: %@", config.department, config.tags, config.visitorInfo.email, config.visitorInfo.name, config.visitorInfo.phoneNumber);
 }
 
@@ -123,9 +123,9 @@ RCT_EXPORT_METHOD(setNotificationToken:(NSData *)deviceToken) {
     helpCenterUiConfig.objcEngines = engines;
     ZDKArticleUiConfiguration* articleUiConfig = [ZDKArticleUiConfiguration new];
     articleUiConfig.objcEngines = engines;
-     if (options[@"disableTicketCreation"]) {
-         helpCenterUiConfig.showContactOptions = NO;
-         articleUiConfig.showContactOptions = NO;
+    if (options[@"disableTicketCreation"]) {
+      helpCenterUiConfig.showContactOptions = NO;
+      articleUiConfig.showContactOptions = NO;
     }
     UIViewController* controller = [ZDKHelpCenterUi buildHelpCenterOverviewUiWithConfigs: @[helpCenterUiConfig, articleUiConfig]];
     // controller.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"Close"
@@ -135,7 +135,7 @@ RCT_EXPORT_METHOD(setNotificationToken:(NSData *)deviceToken) {
 
     UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
     while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
+      topController = topController.presentedViewController;
     }
 
     UINavigationController *navControl = [[UINavigationController alloc] initWithRootViewController: controller];
@@ -154,54 +154,31 @@ RCT_EXPORT_METHOD(setNotificationToken:(NSData *)deviceToken) {
       messagingConfiguration.botAvatar = options[@"botImage"];
     }
 
-    NSError *error = nil;
-    NSMutableArray *engines = [[NSMutableArray alloc] init];
-    if (options[@"chatOnly"]) {
-      engines = @[
-        (id <ZDKEngine>) [ZDKChatEngine engineAndReturnError:&error]
-    ];
-    } else {
-      engines = @[
-        (id <ZDKEngine>) [ZDKAnswerBotEngine engineAndReturnError:&error],
-        (id <ZDKEngine>) [ZDKChatEngine engineAndReturnError:&error],
-        (id <ZDKEngine>) [ZDKSupportEngine engineAndReturnError:&error], 
-      ];
-    }
     ZDKChatConfiguration *chatConfiguration = [[ZDKChatConfiguration alloc] init];
     chatConfiguration.isPreChatFormEnabled = YES;
-    chatConfiguration.isAgentAvailabilityEnabled = YES;
 
-    UIViewController *chatController =[ZDKMessaging.instance buildUIWithEngines:engines
-                                                                        configs:@[messagingConfiguration, chatConfiguration]
-                                                                            error:&error];
-    if (error) {
-      NSLog(@"Error occured %@", error);
-    }
-    chatController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"Close"
-                                                                                       style: UIBarButtonItemStylePlain
-                                                                                      target: self
-                                                                                      action: @selector(chatClosedClicked)];
+    NSError *error = nil;
+    NSArray *engines = @[
+        (id <ZDKEngine>) [ZDKChatEngine engineAndReturnError:&error]
+    ];
 
+    UIViewController *viewController =[ZDKMessaging.instance buildUIWithEngines:engines
+                                                             configs:@[messagingConfiguration, chatConfiguration]
+                                                             error:&error];
 
-        UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
-        while (topController.presentedViewController) {
-            topController = topController.presentedViewController;
-        }
-
-        UINavigationController *navControl = [[UINavigationController alloc] initWithRootViewController: chatController];
-        [topController presentViewController:navControl animated:YES completion:nil];
+  [self.navigationController pushViewController:viewController animated:YES];
 }
 
 - (void) chatClosedClicked {
     UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
     while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
+      topController = topController.presentedViewController;
     }
     [topController dismissViewControllerAnimated:TRUE completion:NULL];
 }
 
 - (void) registerForNotifications:(NSData *)deviceToken {
-   [ZDKChat registerPushToken:deviceToken];
+    [ZDKChat registerPushToken:deviceToken];
 }
 
 @end
